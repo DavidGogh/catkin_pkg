@@ -1,4 +1,5 @@
 *.pyc
+*.tgz
 build
 bin/catkin_create_pkgc
 deb_dist

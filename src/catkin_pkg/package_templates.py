@@ -194,7 +194,7 @@ def _safe_write_files(newfiles, target_dir):
 
 
 def create_package_files(target_path, package_template, rosdistro,
-                         newfiles=None, meta=False):
+                         newfiles=None, meta=False, simple=False):
     """
     Create several files from templates to start a new package.
 
@@ -212,7 +212,7 @@ def create_package_files(target_path, package_template, rosdistro,
             create_package_xml(package_template, rosdistro, meta=meta)
     cmake_path = os.path.join(target_path, 'CMakeLists.txt')
     if cmake_path not in newfiles:
-        newfiles[cmake_path] = create_cmakelists(package_template, rosdistro, meta=meta)
+        newfiles[cmake_path] = create_cmakelists(package_template, rosdistro, meta=meta, simple=simple)
     _safe_write_files(newfiles, target_path)
     if 'roscpp' in package_template.catkin_deps:
         fname = os.path.join(target_path, 'include', package_template.name)
@@ -232,7 +232,7 @@ class CatkinTemplate(string.Template):
     escape = '@'
 
 
-def create_cmakelists(package_template, rosdistro, meta=False):
+def create_cmakelists(package_template, rosdistro, meta=False, simple=False):
     """Create CMake file contents from the template.
 
     :param package_template: contains the required information
@@ -246,7 +246,10 @@ def create_cmakelists(package_template, rosdistro, meta=False):
         }
         return configure_file(template_path, temp_dict)
     else:
-        cmakelists_txt_template = read_template_file('CMakeLists.txt', rosdistro)
+        if simple:
+            cmakelists_txt_template = read_template_file('CMakeLists.txt.simple', rosdistro)
+        else:
+            cmakelists_txt_template = read_template_file('CMakeLists.txt', rosdistro)
         ctemp = CatkinTemplate(cmakelists_txt_template)
         if package_template.catkin_deps == []:
             components = ''
